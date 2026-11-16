@@ -12,7 +12,7 @@
 
 <br/>
 
-<img src="thumbnail.png" alt="Agent to Figma Cover" width="100%" />
+<img src="thumbnail.png?v=2" alt="Agent to Figma Cover" width="100%" />
 
 </div>
 
