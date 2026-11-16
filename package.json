@@ -1,0 +1,9 @@
+{
+  "name": "agent-to-figma",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Figma plugin that reads a Section for an agent and draws the agent's ops into it after the user presses Sync",
+  "scripts": {
+    "test": "node --test test/"
+  }
+}

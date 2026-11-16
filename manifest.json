@@ -1,0 +1,13 @@
+{
+  "name": "Agent to Figma",
+  "id": "agent-to-figma-dev",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma", "figjam"],
+  "documentAccess": "dynamic-page",  "networkAccess": {
+    "allowedDomains": ["https://api.notion.com"],
+    "devAllowedDomains": ["http://localhost:4848"],
+    "reasoning": "Read agent drawing instructions from a Notion page, and talk to a local Claude bridge during development"
+  }
+}

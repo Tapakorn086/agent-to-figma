@@ -1,0 +1,475 @@
+<style>
+  :root {
+    --bg: var(--figma-color-bg, #ffffff);
+    --bg-soft: var(--figma-color-bg-secondary, #f5f5f5);
+    --text: var(--figma-color-text, #1e1e1e);
+    --text-soft: var(--figma-color-text-secondary, #6b6b6b);
+    --border: var(--figma-color-border, #e5e5e5);
+    --brand: var(--figma-color-bg-brand, #0d99ff);
+    --brand-soft: var(--figma-color-bg-brand-tertiary, #e5f4ff);
+    --brand-text: var(--figma-color-text-onbrand, #ffffff);
+    --ok: #1fa35b;
+    --err: #e5484d;
+    --warn: #d69e2e;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: Inter, -apple-system, 'Helvetica Neue', sans-serif;
+    font-size: 12px; color: var(--text); background: var(--bg);
+    display: flex; flex-direction: column;
+  }
+  header { padding: 12px 14px 8px; display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+    background: linear-gradient(135deg, #a259ff, #0d99ff); color: #fff; font-weight: 700;
+  }
+  .title { font-weight: 600; font-size: 13px; }
+  .sub { color: var(--text-soft); font-size: 11px; display: flex; align-items: center; gap: 5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); display: inline-block; }
+  .dot.ok { background: var(--ok); }
+  .dot.off { background: var(--err); }
+  .toggle { margin-left: auto; display: flex; align-items: center; gap: 5px; color: var(--text-soft); font-size: 11px; cursor: pointer; }
+  .toggle input { margin: 0; }
+
+  main { flex: 1; overflow: auto; padding: 0 14px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .card { border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  .card > summary { list-style: none; cursor: pointer; padding: 10px 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .card > summary::-webkit-details-marker { display: none; }
+  .card > summary::after { content: '▾'; margin-left: auto; color: var(--text-soft); }
+  .card:not([open]) > summary::after { content: '▸'; }
+  .card-body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .card-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-weight: 600; }
+  .count { background: var(--bg-soft); color: var(--text-soft); border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 400; }
+  .spacer { flex: 1; }
+
+  .target { padding: 10px 12px; display: flex; gap: 10px; align-items: center; }
+  .target .icon { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-soft); display: grid; place-items: center; color: var(--text-soft); flex: none; }
+  .target .name { font-weight: 600; }
+  .target .path { color: var(--text-soft); font-size: 11px; margin-top: 2px; }
+  .target.none .name { color: var(--text-soft); font-weight: 400; }
+
+  .note { margin: 0 12px; padding: 8px 10px; border-radius: 6px; background: var(--brand-soft); color: var(--text); font-weight: 500; }
+  .list { display: flex; flex-direction: column; max-height: 260px; overflow: auto; margin-top: 6px; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-top: 1px solid var(--border); }
+  .row:first-child { border-top: none; }
+  .row .kind { width: 18px; text-align: center; color: var(--text-soft); flex: none; }
+  .row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .name.child { padding-left: 14px; }
+  .row.err { color: var(--err); }
+  .row.err .name { white-space: normal; }
+  .empty { color: var(--text-soft); padding: 18px 12px; text-align: center; }
+
+  label { display: flex; flex-direction: column; gap: 3px; color: var(--text-soft); font-size: 11px; }
+  label.check { flex-direction: row; align-items: center; gap: 6px; }
+  input, select, textarea {
+    width: 100%; padding: 7px 8px; font-size: 12px; border-radius: 6px; font-family: inherit;
+    border: 1px solid var(--border); background: var(--bg-soft); color: var(--text);
+  }
+  input[type=checkbox] { width: auto; }
+  textarea { font: 11px/1.45 ui-monospace, Menlo, monospace; height: 140px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand); outline-offset: -1px; }
+  .hint { color: var(--text-soft); opacity: 0.8; font-size: 11px; }
+
+  button {
+    font: inherit; font-size: 12px; cursor: pointer; border-radius: 6px; padding: 7px 10px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  }
+  button:hover:not(:disabled) { background: var(--bg-soft); }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button.primary { background: var(--brand); color: var(--brand-text); border-color: transparent; font-weight: 600; flex: 1; }
+  button.primary:hover:not(:disabled) { filter: brightness(1.05); background: var(--brand); }
+  button.link { border: none; background: none; color: var(--brand); padding: 2px 4px; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  img.shot { max-width: 100%; border: 1px solid var(--border); border-radius: 6px; }
+
+  footer { border-top: 1px solid var(--border); padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px; background: var(--bg); }
+  .status { color: var(--text-soft); font-size: 11px; min-height: 14px; white-space: pre-wrap; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--err); }
+  .actions { display: flex; gap: 8px; }
+  .step { display: flex; gap: 10px; align-items: flex-start; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: var(--brand-text); font-weight: 600; display: grid; place-items: center; flex: none; font-size: 11px; }
+  .step-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .step-title { font-weight: 600; }
+  .cmd { display: flex; gap: 6px; align-items: center; }
+  .cmd code { flex: 1; min-width: 0; padding: 6px 8px; border-radius: 6px; background: var(--bg-soft); font: 11px/1.4 ui-monospace, Menlo, monospace; overflow-x: auto; white-space: nowrap; user-select: text; }
+  .prompt { padding: 8px 10px; border-radius: 6px; background: var(--bg-soft); color: var(--text); line-height: 1.5; user-select: text; }
+  button.mini { align-self: flex-start; padding: 4px 10px; font-size: 11px; }
+  button.mini.copied { color: var(--ok); }
+  .cmd button.mini { align-self: center; flex: none; }
+</style>
+
+<header>
+  <div class="logo">✦</div>
+  <div>
+    <div class="title">Agent → Figma</div>
+    <div class="sub"><span class="dot" id="dot"></span><span id="bridgeState">กำลังเชื่อม Claude…</span></div>
+  </div>
+  <label class="toggle"><input type="checkbox" id="bridgeOn" checked> เชื่อม Claude</label>
+</header>
+
+<main>
+  <section class="card">
+    <div id="sectionInfo" class="target none">
+      <div class="icon">#</div>
+      <div><div class="name">เลือก Section หรือ Frame บน canvas</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span>วิธีใช้</span></div>
+    <div class="card-body">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">เปิด bridge ในเครื่อง</div>
+          <div class="cmd">
+            <code id="bridgeCmd">cd ~/Documents/agent-to-figma && node bridge.js</code>
+            <button class="mini" id="copyCmd">คัดลอก</button>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">บอก Claude ในแชต</div>
+          <div id="startPrompt" class="prompt">ฉันเปิด Agent to Figma แล้ว และ bridge กำลังรันอยู่ ช่วยอ่าน section ที่ฉันเลือกใน Figma แล้วไปดู row ของมันใน Notion จากนั้นตอบฉันในแชตนี้</div>
+          <button id="copyPrompt" class="mini">คัดลอกข้อความ</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <span>คำสั่งจาก Claude</span>
+      <span class="count" id="count">0</span>
+    </div>
+    <div id="incoming" class="note" hidden></div>
+    <div class="list" id="preview"><div class="empty">ยังไม่มีคำสั่ง — ถาม Claude ในแชตได้เลย</div></div>
+  </section>
+
+  <details class="card">
+    <summary>อ่าน section</summary>
+    <div class="card-body">
+      <label class="check"><input type="checkbox" id="withImage" checked> แนบภาพ PNG ของ section</label>
+      <label>รูปแบบ
+        <select id="readFormat">
+          <option value="markdown">Markdown outline</option>
+          <option value="json">JSON</option>
+        </select>
+      </label>
+      <textarea id="context" readonly placeholder="กด อ่าน section"></textarea>
+      <div class="btns">
+        <button id="readBtn">อ่าน section</button>
+        <button id="copyBtn">คัดลอก</button>
+        <a id="pngLink" download="section.png" style="display:none"><button>ดาวน์โหลด PNG</button></a>
+      </div>
+      <img id="shot" class="shot" style="display:none">
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>ขั้นสูง: Ops (JSON)</summary>
+    <div class="card-body">
+      <label>แหล่งคำสั่ง
+        <select id="source">
+          <option value="paste">วาง JSON เอง</option>
+          <option value="notion">หน้า Notion (code block แรก)</option>
+        </select>
+      </label>
+      <div id="notionBox" class="card-body" style="display:none;padding:0">
+        <label>Notion token <input id="token" type="password" placeholder="ntn_…"></label>
+        <label>ลิงก์หน้า Notion <input id="pageUrl" placeholder="https://www.notion.so/…"></label>
+        <button id="fetchBtn">ดึงคำสั่งจาก Notion</button>
+      </div>
+      <textarea id="ops" spellcheck="false" placeholder='{"ops":[{"op":"text","text":"Hello","fontSize":24,"bold":true}]}'></textarea>
+      <div class="hint">พิกัดนับจากมุมซ้ายบนของ section · op: frame, rect, ellipse, text, line</div>
+      <button id="previewBtn">Preview</button>
+    </div>
+  </details>
+</main>
+
+<footer>
+  <div class="status" id="status"></div>
+  <div class="actions">
+    <button id="undoBtn" title="ลบชิ้นที่วาดใน Sync ล่าสุด">↶ ย้อน</button>
+    <button id="clearBtn" title="ลบทุกชิ้นที่ agent วาดใน section นี้">ล้าง</button>
+    <button class="primary" id="syncBtn" disabled>Sync ลง section</button>
+  </div>
+</footer>
+
+<script>
+  /* domain:start */
+  // Accepts a page URL or bare ID, returns the 32-char Notion ID
+  function parseNotionId(input) {
+    const s = String(input || '').split(/[?#]/)[0].replace(/-/g, '').replace(/\/+$/, '');
+    const m = s.match(/[0-9a-f]{32}$/i);
+    return m ? m[0].toLowerCase() : null;
+  }
+
+  // First code block in a list of Notion blocks, as plain text
+  function firstCodeBlock(blocks) {
+    const b = (blocks || []).find((x) => x.type === 'code');
+    return b ? b.code.rich_text.map((t) => t.plain_text).join('') : null;
+  }
+  /* domain:end */
+
+  const $ = (id) => document.getElementById(id);
+  const NOTION_API = 'https://api.notion.com/v1';
+  const BRIDGE = 'http://localhost:4848';
+  let read = null;
+  let previewedOps = null;
+  let replaceMode = false; // set by Claude's bridge; replaces the agent's previous output on Sync
+  let currentSection = null;
+
+  // ---- Bridge to Claude: poll the local bridge (node bridge.js) for ops and read requests
+  async function bridgePost(path, body) {
+    const res = await fetch(BRIDGE + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  }
+  function toBase64(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
+  async function pollBridge() {
+    if ($('bridgeOn').checked) {
+      try {
+        const reply = await bridgePost('/plugin/poll', { selection: currentSection });
+        setBridge('ok', 'Claude ออนไลน์');
+        if (reply.wantRead) post({ type: 'read', image: true, forBridge: true });
+        if (reply.ops) {
+          $('source').value = 'paste';
+          $('notionBox').style.display = 'none';
+          $('ops').value = JSON.stringify({ ops: reply.ops.ops }, null, 2);
+          previewedOps = $('ops').value;
+          replaceMode = !!reply.ops.replace;
+          $('incoming').hidden = false;
+          $('incoming').textContent = '✦ ' + (reply.ops.note || 'คำสั่งใหม่จาก Claude');
+          post({ type: 'preview', ops: previewedOps, replace: replaceMode });
+        }
+      } catch (e) {
+        setBridge('off', 'ไม่พบ bridge — รัน node bridge.js');
+      }
+    } else {
+      setBridge('', 'ปิดการเชื่อม Claude');
+    }
+    setTimeout(pollBridge, 1500);
+  }
+  function reportToBridge(body) {
+    if ($('bridgeOn').checked) bridgePost('/plugin/result', body).catch(() => {});
+  }
+
+  const post = (msg) => parent.postMessage({ pluginMessage: msg }, '*');
+  const status = (text, isErr, isOk) => {
+    $('status').textContent = text || '';
+    $('status').className = 'status' + (isErr ? ' err' : isOk ? ' ok' : '');
+  };
+
+  const KIND_ICON = { frame: '▢', rect: '■', ellipse: '●', text: 'T', line: '—' };
+  const el = (tag, cls, text) => {
+    const d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (text !== undefined) d.textContent = text;
+    return d;
+  };
+  function setBridge(state, text) {
+    $('dot').className = 'dot' + (state === 'ok' ? ' ok' : state === 'off' ? ' off' : '');
+    $('bridgeState').textContent = text;
+  }
+  function clearIncoming() {
+    $('incoming').hidden = true;
+    $('count').textContent = '0';
+    $('preview').replaceChildren(el('div', 'empty', 'ยังไม่มีคำสั่ง — ถาม Claude ในแชตได้เลย'));
+  }
+
+  function saveSettings() {
+    post({ type: 'save-settings', settings: { source: $('source').value, token: $('token').value, pageUrl: $('pageUrl').value } });
+  }
+  $('source').onchange = () => {
+    $('notionBox').style.display = $('source').value === 'notion' ? 'block' : 'none';
+    saveSettings();
+  };
+  $('token').onchange = saveSettings;
+  $('pageUrl').onchange = saveSettings;
+
+  // Editing the ops means the preview no longer matches
+  $('ops').oninput = () => {
+    previewedOps = null;
+    replaceMode = false; // hand-edited ops are appended unless the bridge says otherwise
+    $('syncBtn').disabled = true;
+  };
+
+  async function fetchFromNotion() {
+    const id = parseNotionId($('pageUrl').value);
+    if (!id) throw new Error('ลิงก์หน้า Notion ไม่ถูกต้อง');
+    const token = $('token').value.trim();
+    if (!token) throw new Error('ใส่ Notion token ก่อน');
+    let cursor;
+    const blocks = [];
+    do {
+      const q = '?page_size=100' + (cursor ? '&start_cursor=' + cursor : '');
+      const res = await fetch(`${NOTION_API}/blocks/${id}/children${q}`, {
+        headers: { Authorization: 'Bearer ' + token, 'Notion-Version': '2022-06-28' },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(`Notion ${res.status}: ${data.message || 'error'}`);
+      blocks.push(...data.results);
+      const code = firstCodeBlock(blocks);
+      if (code !== null) return code;
+      cursor = data.has_more ? data.next_cursor : null;
+    } while (cursor);
+    throw new Error('ไม่พบ code block ในหน้านี้ (ให้ agent เขียน ops เป็น code block JSON)');
+  }
+
+  $('fetchBtn').onclick = async () => {
+    status('กำลังดึงจาก Notion…');
+    try {
+      $('ops').value = await fetchFromNotion();
+      $('ops').oninput();
+      status('ดึงแล้ว กด Preview เพื่อตรวจ');
+    } catch (e) {
+      status(e.message, true);
+    }
+  };
+
+  $('previewBtn').onclick = () => {
+    previewedOps = $('ops').value;
+    post({ type: 'preview', ops: previewedOps, replace: replaceMode });
+  };
+  $('syncBtn').onclick = () => {
+    if (previewedOps === null) return;
+    $('syncBtn').disabled = true;
+    status('กำลังวาด…');
+    post({ type: 'sync', ops: previewedOps, replace: replaceMode });
+  };
+  $('undoBtn').onclick = () => post({ type: 'undo' });
+  $('clearBtn').onclick = () => {
+    if (confirm('ลบทุกชิ้นที่ agent วาดไว้ใน section นี้?')) post({ type: 'clear' });
+  };
+
+  function renderContext() {
+    if (!read) return;
+    $('context').value = $('readFormat').value === 'json' ? JSON.stringify(read.tree, null, 2) : read.markdown;
+  }
+  $('readFormat').onchange = renderContext;
+  // navigator.clipboard is blocked in plugin iframes; select + execCommand works
+  function copyFrom(sourceId, buttonId) {
+    const button = $(buttonId);
+    const range = document.createRange();
+    range.selectNodeContents($(sourceId));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    const ok = document.execCommand('copy');
+    sel.removeAllRanges();
+    const label = button.textContent;
+    button.textContent = ok ? 'คัดลอกแล้ว ✓' : 'คัดลอกไม่สำเร็จ';
+    button.classList.toggle('copied', ok);
+    setTimeout(() => {
+      button.textContent = label;
+      button.classList.remove('copied');
+    }, 1800);
+  }
+  $('copyPrompt').onclick = () => copyFrom('startPrompt', 'copyPrompt');
+  $('copyCmd').onclick = () => copyFrom('bridgeCmd', 'copyCmd');
+  $('readBtn').onclick = () => {
+    status('กำลังอ่าน…');
+    post({ type: 'read', image: $('withImage').checked });
+  };
+  $('copyBtn').onclick = () => {
+    // navigator.clipboard is blocked in plugin iframes; execCommand still works
+    $('context').select();
+    document.execCommand('copy');
+    status('คัดลอกแล้ว');
+  };
+
+  onmessage = (e) => {
+    const msg = e.data.pluginMessage;
+    if (!msg) return;
+    if (msg.type === 'settings') {
+      const s = msg.settings;
+      if (s.source) $('source').value = s.source;
+      $('token').value = s.token || '';
+      $('pageUrl').value = s.pageUrl || '';
+      $('notionBox').style.display = $('source').value === 'notion' ? 'block' : 'none';
+    } else if (msg.type === 'selection') {
+      const s = msg.section;
+      currentSection = s;
+      const box = $('sectionInfo');
+      box.className = 'target' + (s ? '' : ' none');
+      const info = el('div');
+      if (s) {
+        info.append(el('div', 'name', s.name));
+        const where = s.parents && s.parents.length ? ' · ใน ' + s.parents.map((p) => p.name).join(' › ') : '';
+        info.append(el('div', 'path', `${s.type === 'SECTION' ? 'Section' : 'Frame'} ${s.width}×${s.height}${where}`));
+      } else {
+        info.append(el('div', 'name', 'เลือก Section หรือ Frame บน canvas'));
+      }
+      box.replaceChildren(el('div', 'icon', s && s.type === 'FRAME' ? '▢' : '#'), info);
+      // The preview was checked against the old section's size; re-check it against the new one
+      $('syncBtn').disabled = true;
+      if (previewedOps !== null) post({ type: 'preview', ops: previewedOps, replace: replaceMode });
+    } else if (msg.type === 'preview-result') {
+      const box = $('preview');
+      box.replaceChildren();
+      if (!msg.hasSection) msg.errors.unshift('ยังไม่ได้เลือก section');
+      for (const err of msg.errors) {
+        const r = el('div', 'row err');
+        r.append(el('span', 'kind', '✗'), el('span', 'name', err));
+        box.append(r);
+      }
+      for (const line of msg.lines) {
+        const kind = line.split(' ')[0];
+        const r = el('div', 'row');
+        r.title = line;
+        r.append(el('span', 'kind', KIND_ICON[kind] || '+'), el('span', 'name' + (line.includes(' ใน ') ? ' child' : ''), line.slice(kind.length + 1)));
+        box.append(r);
+      }
+      $('count').textContent = String(msg.lines.length);
+      const ok = msg.hasSection && !msg.errors.length && msg.lines.length > 0;
+      $('syncBtn').disabled = !ok;
+      $('syncBtn').textContent = ok ? `Sync ${msg.lines.length} ชิ้นลง section` : 'Sync ลง section';
+      reportToBridge({ kind: 'preview', ok, lines: msg.lines.length, errors: msg.errors });
+      status(ok ? 'ตรวจแล้ว กด Sync เพื่อวาด' : 'แก้ข้อผิดพลาดก่อน Sync', !ok);
+    } else if (msg.type === 'read-result' && msg.forBridge) {
+      bridgePost('/plugin/context', { tree: msg.tree, markdown: msg.markdown, png: msg.png ? toBase64(msg.png) : null })
+        .then(() => status('ส่ง context ของ section ให้ Claude แล้ว'))
+        .catch((e) => status('ส่ง context ไม่สำเร็จ: ' + e.message, true));
+    } else if (msg.type === 'read-result') {
+      read = msg;
+      renderContext();
+      if (msg.png) {
+        const url = URL.createObjectURL(new Blob([msg.png], { type: 'image/png' }));
+        $('shot').src = url;
+        $('shot').style.display = 'block';
+        $('pngLink').href = url;
+        $('pngLink').style.display = 'inline-block';
+      } else {
+        $('shot').style.display = 'none';
+        $('pngLink').style.display = 'none';
+      }
+      status('อ่านแล้ว คัดลอกไปให้ agent ได้เลย');
+    } else if (msg.type === 'done') {
+      reportToBridge({ kind: 'done', ok: true, text: msg.text });
+      clearIncoming();
+      status(msg.text, false, true);
+      previewedOps = null;
+      $('syncBtn').disabled = true;
+      $('syncBtn').textContent = 'Sync ลง section';
+    } else if (msg.type === 'error') {
+      reportToBridge({ kind: 'error', ok: false, text: msg.text });
+      status(msg.text, true);
+      if (previewedOps !== null) $('syncBtn').disabled = false;
+    }
+  };
+
+  post({ type: 'ready' });
+  pollBridge();
+</script>
