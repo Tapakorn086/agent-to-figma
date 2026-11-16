@@ -20,48 +20,63 @@
 
 ## 📖 Overview
 
-**Agent to Figma** is the reverse of [figma-to-notion](https://github.com/Tapakorn086/figma-to-notion). You select a Section or Frame in Figma, and Claude:
+**Agent to Figma** is the companion & reverse workflow of [figma-to-notion](https://github.com/Tapakorn086/figma-to-notion). Together, they form a complete two-way loop between your design canvas and your documentation:
 
-1. Reads its structure and image through a local bridge
-2. Finds the matching row in your Notion database by Figma key
-3. Answers in chat, or writes drawing instructions (ops)
-4. Previews them in the plugin. **You press Sync** to draw into the selected Section.
+- **[figma-to-notion](https://github.com/Tapakorn086/figma-to-notion)** — **Figma → Notion:** Export layers, frames, tables, and specs from Figma into your Notion database.
+- **Agent to Figma (this repo)** — **Notion → Figma:** Let Claude read your selected Figma Section, look up its matching row in Notion, and draw the answer or new components back into Figma.
 
-Claude never draws without your Sync. Every drawn piece stays inside the Section, and Sync can be undone.
+Claude never draws without your **Sync**. Every drawn piece stays inside the selected Section, and every Sync can be undone.
+
+Perfect for:
+- 🤖 **Design-to-Agent Context:** Send a Section's outline and PNG directly to Claude so it understands your layout and Notion specs.
+- ✏️ **Agent-to-Canvas Drawing:** Let Claude propose frames, cards, shapes, and text back into Figma.
+- 🛡️ **Safe, Previewed Sync:** Inspect every op and bounding-box check before anything is drawn on your canvas.
 
 ---
 
 ## ✨ Features
 
-- **Read a section:** outline (Markdown or JSON) and a PNG of the section, ready to paste or sent over the bridge
-- **Draw into a section:** `frame`, `rect`, `ellipse`, `text`, `line`, with auto layout on frames
-- **Preview before drawing:** every op is checked against the section size, and mistakes are listed before Sync
-- **Undo:** remove the last Sync, or clear everything the agent drew
-- **Parent context:** shows which Sections contain the selected one, and their Figma keys for matching Notion
+- **Read a Section:** Exports the selected Section's outline (Markdown or JSON) and a PNG render, ready to paste or send over the local bridge.
+- **Draw into a Section:** Supports `frame`, `rect`, `ellipse`, `text`, and `line`, with auto layout on frames.
+- **Preview Before Drawing:** Every op is checked against the Section size, and any mistakes are listed before you press **Sync**.
+- **Undo & Clear:** Remove the last Sync, or clear everything the agent drew in one click.
+- **Parent Context:** Shows which parent Sections contain the selected one, along with their Figma keys for matching Notion rows.
 
 ---
 
-## 🚀 Setup
+## 🚀 Installation & Local Development
 
-### 1. Install the plugin
+### 1. Install the Plugin
 
-Figma desktop → **Plugins → Development → Import plugin from manifest…** → select `manifest.json`
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/Tapakorn086/agent-to-figma.git
+   cd agent-to-figma
+   ```
+2. Open **Figma Desktop**.
+3. Navigate to: `Plugins` > `Development` > `Import plugin from manifest...`
+4. Select the [`manifest.json`](manifest.json) file in this repository.
+5. The plugin is now ready under `Plugins` > `Development` > **Agent to Figma**.
 
-### 2. Start the bridge
+### 2. Start the Bridge
 
 ```bash
 cd ~/Documents/agent-to-figma && node bridge.js
 ```
 
-The bridge listens on `http://localhost:4848` (127.0.0.1 only).
+The bridge listens on `http://localhost:4848` (`127.0.0.1` only).
 
-### 3. Use it
+---
 
-1. Select one Section or Frame on the canvas
-2. Open **Agent to Figma** and check that the status shows **Claude ออนไลน์** (green)
-3. In chat, tell Claude what to read or draw, for example: *"ช่วยอ่าน section ที่ฉันเลือกใน Figma แล้วไปดู row ของมันใน Notion จากนั้นตอบฉันในแชตนี้"*
+## 💡 How to Use
 
-The plugin has a "วิธีใช้" card with the bridge command and this prompt, each with a copy button.
+1. Select one **Section** or **Frame** on your Figma canvas.
+2. Run the **Agent to Figma** plugin and check that the status shows **Claude ออนไลน์** (green).
+3. In chat, tell Claude what to read or draw, for example:
+   *"ช่วยอ่าน section ที่ฉันเลือกใน Figma แล้วไปดู row ของมันใน Notion จากนั้นตอบฉันในแชตนี้"*
+4. Review the previewed ops in the plugin, then click **Sync** to draw them into the selected Section.
+
+> 💡 **Tip:** The plugin includes a **"วิธีใช้"** card with the bridge command and sample prompt, each with a one-click copy button.
 
 ---
 
@@ -120,6 +135,13 @@ Tests cover the pure logic in `/* domain:start */` … `/* domain:end */` region
 
 ---
 
+## 🔒 Security & Privacy
+
+- **Local-Only Bridge:** `bridge.js` binds strictly to `127.0.0.1:4848`—no external server or third-party backend is involved.
+- **Explicit Sync Gate:** Claude can only queue ops for preview; nothing is drawn on your canvas until you click **Sync**.
+
+---
+
 ## 📄 License
 
-MIT. See [LICENSE](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
